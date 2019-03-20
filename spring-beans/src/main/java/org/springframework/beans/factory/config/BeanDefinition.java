@@ -44,6 +44,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * <p>Note that extended bean factories might support further scopes.
 	 * @see #setScope
 	 */
+	// 单例
 	String SCOPE_SINGLETON = ConfigurableBeanFactory.SCOPE_SINGLETON;
 
 	/**
@@ -51,6 +52,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * <p>Note that extended bean factories might support further scopes.
 	 * @see #setScope
 	 */
+	// 原型
 	String SCOPE_PROTOTYPE = ConfigurableBeanFactory.SCOPE_PROTOTYPE;
 
 
@@ -90,6 +92,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	/**
 	 * Return the name of the parent definition of this bean definition, if any.
 	 */
+	// 父BeanDefinition的名称
 	@Nullable
 	String getParentName();
 
@@ -115,6 +118,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * @see #getFactoryBeanName()
 	 * @see #getFactoryMethodName()
 	 */
+	// 类的全路径名
 	@Nullable
 	String getBeanClassName();
 
@@ -129,6 +133,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * Return the name of the current target scope for this bean,
 	 * or {@code null} if not known yet.
 	 */
+	// bean的作用域
 	@Nullable
 	String getScope();
 
@@ -143,6 +148,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * Return whether this bean should be lazily initialized, i.e. not
 	 * eagerly instantiated on startup. Only applicable to a singleton bean.
 	 */
+	// 是否懒加载
 	boolean isLazyInit();
 
 	/**
@@ -154,6 +160,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	/**
 	 * Return the bean names that this bean depends on.
 	 */
+	// 获取依赖的bean
 	@Nullable
 	String[] getDependsOn();
 
@@ -169,6 +176,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	/**
 	 * Return whether this bean is a candidate for getting autowired into some other bean.
 	 */
+	// 是否允许被自动装配
 	boolean isAutowireCandidate();
 
 	/**
@@ -181,6 +189,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	/**
 	 * Return whether this bean is a primary autowire candidate.
 	 */
+	// 是否优先自动装配
 	boolean isPrimary();
 
 	/**
@@ -193,6 +202,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	/**
 	 * Return the factory bean name, if any.
 	 */
+	// 工厂bean的名称
 	@Nullable
 	String getFactoryBeanName();
 
@@ -209,6 +219,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	/**
 	 * Return a factory method, if any.
 	 */
+	// 工厂方法名称
 	@Nullable
 	String getFactoryMethodName();
 
@@ -217,6 +228,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * <p>The returned instance can be modified during bean factory post-processing.
 	 * @return the ConstructorArgumentValues object (never {@code null})
 	 */
+	// 构造方法参数值
 	ConstructorArgumentValues getConstructorArgumentValues();
 
 	/**
@@ -232,6 +244,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * <p>The returned instance can be modified during bean factory post-processing.
 	 * @return the MutablePropertyValues object (never {@code null})
 	 */
+	// 属性名称和值
 	MutablePropertyValues getPropertyValues();
 
 	/**
@@ -287,6 +300,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * @see #ROLE_SUPPORT
 	 * @see #ROLE_INFRASTRUCTURE
 	 */
+	// 角色提示
 	int getRole();
 
 	/**
@@ -309,6 +323,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * returned on all calls.
 	 * @see #SCOPE_SINGLETON
 	 */
+	// 是否单例
 	boolean isSingleton();
 
 	/**
@@ -317,17 +332,20 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * @since 3.0
 	 * @see #SCOPE_PROTOTYPE
 	 */
+	// 是否原型
 	boolean isPrototype();
 
 	/**
 	 * Return whether this bean is "abstract", that is, not meant to be instantiated.
 	 */
+	// 是否抽象
 	boolean isAbstract();
 
 	/**
 	 * Return a description of the resource that this bean definition
 	 * came from (for the purpose of showing context in case of errors).
 	 */
+	// 资源描述
 	@Nullable
 	String getResourceDescription();
 
@@ -337,6 +355,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * <p>Note that this method returns the immediate originator. Iterate through the
 	 * originator chain to find the original BeanDefinition as defined by the user.
 	 */
+	// 返回原始bean，如果没有返回null
 	@Nullable
 	BeanDefinition getOriginatingBeanDefinition();
 

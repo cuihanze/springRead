@@ -83,9 +83,11 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 	 */
 	protected AbstractBeanDefinitionReader(BeanDefinitionRegistry registry) {
 		Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
+		// 设置registry，用于注册Bean
 		this.registry = registry;
 
 		// Determine ResourceLoader to use.
+		// 决定使用的ResourceLoader
 		if (this.registry instanceof ResourceLoader) {
 			this.resourceLoader = (ResourceLoader) this.registry;
 		}
@@ -94,6 +96,7 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 		}
 
 		// Inherit Environment if possible
+		// 决定使用的Environment
 		if (this.registry instanceof EnvironmentCapable) {
 			this.environment = ((EnvironmentCapable) this.registry).getEnvironment();
 		}
@@ -179,12 +182,14 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 		return this.beanNameGenerator;
 	}
 
-
+	// 从Resource中读取BeanDefinition，在BeanDefinitionReader接口中定义
 	@Override
 	public int loadBeanDefinitions(Resource... resources) throws BeanDefinitionStoreException {
 		Assert.notNull(resources, "Resource array must not be null");
 		int count = 0;
+		// 遍历，逐个读取
 		for (Resource resource : resources) {
+			// loadBeanDefinitions方法在BeanDefinitionReader接口中定义，在AbstractBeanDefinitionReader的子类中实现，使用设计模式 [模板方法模式]
 			count += loadBeanDefinitions(resource);
 		}
 		return count;

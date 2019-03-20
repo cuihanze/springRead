@@ -167,13 +167,16 @@ public class ClassPathResource extends AbstractFileResolvingResource {
 	@Override
 	public InputStream getInputStream() throws IOException {
 		InputStream is;
+		// 如果Class对象存在，直接返回classpath的输入流
 		if (this.clazz != null) {
 			is = this.clazz.getResourceAsStream(this.path);
 		}
+		// 如果ClassLoader存在，直接返回classpath的输入流
 		else if (this.classLoader != null) {
 			is = this.classLoader.getResourceAsStream(this.path);
 		}
 		else {
+			// 通过系统类加载器（BootStrap），返回classpath的输入流
 			is = ClassLoader.getSystemResourceAsStream(this.path);
 		}
 		if (is == null) {

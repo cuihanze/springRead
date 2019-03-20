@@ -121,8 +121,11 @@ public interface BeanFactory {
 	 * {@code myJndiObject} is a FactoryBean, getting {@code &myJndiObject}
 	 * will return the factory, not the instance returned by the factory.
 	 */
+	// FactoryBean标识
 	String FACTORY_BEAN_PREFIX = "&";
 
+
+	// 获取bean的5种方法
 
 	/**
 	 * Return an instance, which may be shared or independent, of the specified bean.
@@ -248,6 +251,7 @@ public interface BeanFactory {
 	 * @param name the name of the bean to query
 	 * @return whether a bean with the given name is present
 	 */
+	// 容器中是否存在指定name的bean
 	boolean containsBean(String name);
 
 	/**
@@ -265,6 +269,7 @@ public interface BeanFactory {
 	 * @see #getBean
 	 * @see #isPrototype
 	 */
+	// 指定name的bean是否是单例
 	boolean isSingleton(String name) throws NoSuchBeanDefinitionException;
 
 	/**
@@ -283,6 +288,7 @@ public interface BeanFactory {
 	 * @see #getBean
 	 * @see #isSingleton
 	 */
+	// 指定name的bean是否是原型
 	boolean isPrototype(String name) throws NoSuchBeanDefinitionException;
 
 	/**
@@ -300,6 +306,7 @@ public interface BeanFactory {
 	 * @see #getBean
 	 * @see #getType
 	 */
+	// 指定name的bean是否与指定类型匹配
 	boolean isTypeMatch(String name, ResolvableType typeToMatch) throws NoSuchBeanDefinitionException;
 
 	/**
@@ -333,6 +340,7 @@ public interface BeanFactory {
 	 * @see #getBean
 	 * @see #isTypeMatch
 	 */
+	// 获取bean的Class对象
 	@Nullable
 	Class<?> getType(String name) throws NoSuchBeanDefinitionException;
 
@@ -347,6 +355,7 @@ public interface BeanFactory {
 	 * @return the aliases, or an empty array if none
 	 * @see #getBean
 	 */
+	// bean的别名
 	String[] getAliases(String name);
 
 }
