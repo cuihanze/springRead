@@ -325,7 +325,8 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 			bdHolder = delegate.decorateBeanDefinitionIfRequired(ele, bdHolder);
 			try {
 				// Register the final decorated instance.
-				// 注册BeanDefinitionHolder到BeanFactory中
+				// 注册BeanDefinitionHolder到BeanFactory中，委托给BeanDefinitionRegistry， DefaultListableBeanFactory实现了BeanDefinitionRegistry，即委托给DefaultListableBeanFactory
+				// 实际是注册到beanDefinitionMap  的map中
 				BeanDefinitionReaderUtils.registerBeanDefinition(bdHolder, getReaderContext().getRegistry());
 			} catch (BeanDefinitionStoreException ex) {
 				getReaderContext().error("Failed to register bean definition with name '" +
