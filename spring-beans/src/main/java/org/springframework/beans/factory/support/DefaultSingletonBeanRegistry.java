@@ -168,20 +168,30 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 * Return the (raw) singleton object registered under the given name.
 	 * <p>Checks already instantiated singletons and also allows for an early
 	 * reference to a currently created singleton (resolving a circular reference).
-	 * @param beanName the name of the bean to look for
+	 *
+	 * @param beanName            the name of the bean to look for
 	 * @param allowEarlyReference whether early references should be created or not
 	 * @return the registered singleton object, or {@code null} if none found
 	 */
+
 	@Nullable
 	protected Object getSingleton(String beanName, boolean allowEarlyReference) {
+		// 尝试从singletonObjects中查找
 		Object singletonObject = this.singletonObjects.get(beanName);
+		// 如果未查找到，判断是否在创建， 在 singletonsCurrentlyInCreation map中查找
 		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
 			synchronized (this.singletonObjects) {
+				// 如果正在创建，说明bean之间存在相互依赖的关系
+				// 从预实例化对象map： earlySingletonObjects中获取
 				singletonObject = this.earlySingletonObjects.get(beanName);
 				if (singletonObject == null && allowEarlyReference) {
+					// 如果预实例化对象map中也不存在， 从单例工厂map中获取bean的ObjectFactory, 并通过ObjectFactory的getObject方法返回bean对象
+					// ObjectFactory和BeanFactory都使用了 设计模式 ， [工厂方法模式]
 					ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
 					if (singletonFactory != null) {
+						// 实现ObjectFactory的类，需实现getObject方法
 						singletonObject = singletonFactory.getObject();
+						// 问题：earlySingletonObjects怎么处理到singletonObjects中？
 						this.earlySingletonObjects.put(beanName, singletonObject);
 						this.singletonFactories.remove(beanName);
 					}
@@ -201,50 +211,60 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 */
 	public Object getSingleton(String beanName, ObjectFactory<?> singletonFactory) {
 		Assert.notNull(beanName, "Bean name must not be null");
+		// 锁，保证 bean 的创建不会并发
 		synchronized (this.singletonObjects) {
+			// 再次检查缓存是否存在
 			Object singletonObject = this.singletonObjects.get(beanName);
+			// 缓存中不存在的处理
 			if (singletonObject == null) {
+				// 如果正在销毁抛出异常， 不能在 destroy 中调用 getBean
 				if (this.singletonsCurrentlyInDestruction) {
 					throw new BeanCreationNotAllowedException(beanName,
 							"Singleton bean creation not allowed while singletons of this factory are in destruction " +
-							"(Do not request a bean from a BeanFactory in a destroy method implementation!)");
+									"(Do not request a bean from a BeanFactory in a destroy method implementation!)");
 				}
 				if (logger.isDebugEnabled()) {
 					logger.debug("Creating shared instance of singleton bean '" + beanName + "'");
 				}
+				// 单例创建前的回调扩展点
+				// 默认添加 beanName 到 singletonsCurrentlyInCreation 中
 				beforeSingletonCreation(beanName);
+				// 成功创建的标识
 				boolean newSingleton = false;
 				boolean recordSuppressedExceptions = (this.suppressedExceptions == null);
 				if (recordSuppressedExceptions) {
 					this.suppressedExceptions = new LinkedHashSet<>();
 				}
 				try {
+					// 核心逻辑 --> 调用 ObjectFactory 实现类的 getObject 方法， 实现类为 Lambda 表达式， createBean()方法，查看其实现
 					singletonObject = singletonFactory.getObject();
+					// 创建成功
 					newSingleton = true;
-				}
-				catch (IllegalStateException ex) {
+				} catch (IllegalStateException ex) {
 					// Has the singleton object implicitly appeared in the meantime ->
 					// if yes, proceed with it since the exception indicates that state.
 					singletonObject = this.singletonObjects.get(beanName);
 					if (singletonObject == null) {
 						throw ex;
 					}
-				}
-				catch (BeanCreationException ex) {
+				} catch (BeanCreationException ex) {
 					if (recordSuppressedExceptions) {
 						for (Exception suppressedException : this.suppressedExceptions) {
 							ex.addRelatedCause(suppressedException);
 						}
 					}
 					throw ex;
-				}
-				finally {
+				} finally {
 					if (recordSuppressedExceptions) {
 						this.suppressedExceptions = null;
 					}
+					// 单例创建后的回掉扩展点
+					// 默认从singletonsCurrentlyInCreation集合中移除beanName
 					afterSingletonCreation(beanName);
 				}
+				// 创建成功的处理
 				if (newSingleton) {
+					// 新创建的单例实例，设置到缓存中，已备后续使用
 					addSingleton(beanName, singletonObject);
 				}
 			}

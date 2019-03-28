@@ -329,6 +329,7 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
 			}
 			else {
 				ReflectionUtils.makeAccessible(writeMethod);
+				// 核心逻辑 --> JDK反射，设置属性值
 				writeMethod.invoke(getWrappedInstance(), value);
 			}
 		}

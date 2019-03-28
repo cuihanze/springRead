@@ -49,6 +49,7 @@ public class DefaultConversionService extends GenericConversionService {
 	 * {@linkplain DefaultConversionService#addDefaultConverters(ConverterRegistry) default converters}.
 	 */
 	public DefaultConversionService() {
+		// 注册常见的转换器
 		addDefaultConverters(this);
 	}
 
@@ -80,14 +81,20 @@ public class DefaultConversionService extends GenericConversionService {
 
 	/**
 	 * Add converters appropriate for most environments.
+	 *
 	 * @param converterRegistry the registry of converters to add to
-	 * (must also be castable to ConversionService, e.g. being a {@link ConfigurableConversionService})
+	 *                          (must also be castable to ConversionService, e.g. being a {@link ConfigurableConversionService})
 	 * @throws ClassCastException if the given ConverterRegistry could not be cast to a ConversionService
 	 */
+	// 常用转换器注册
 	public static void addDefaultConverters(ConverterRegistry converterRegistry) {
+
+		// 常见类型转换器注册， 1:1,1:N的转换
 		addScalarConverters(converterRegistry);
+		// 集合类转换器注册, GenericConverter N:N的装换
 		addCollectionConverters(converterRegistry);
 
+		// 其他类型转换器
 		converterRegistry.addConverter(new ByteBufferConverter((ConversionService) converterRegistry));
 		converterRegistry.addConverter(new StringToTimeZoneConverter());
 		converterRegistry.addConverter(new ZoneIdToTimeZoneConverter());
@@ -132,15 +139,27 @@ public class DefaultConversionService extends GenericConversionService {
 	}
 
 	private static void addScalarConverters(ConverterRegistry converterRegistry) {
+
+		// ConverterFactory 可1:N转换， source 可转换为 targetType 类型及其子类型
+		// Number 转 Number
 		converterRegistry.addConverterFactory(new NumberToNumberConverterFactory());
 
+		// String 转成 Number
 		converterRegistry.addConverterFactory(new StringToNumberConverterFactory());
+
+		// Converter 可1:1转换， sourceType 转换成指定的 targetType
+
+		// Number转String
 		converterRegistry.addConverter(Number.class, String.class, new ObjectToStringConverter());
 
+		// String to char
 		converterRegistry.addConverter(new StringToCharacterConverter());
+		// char to String
 		converterRegistry.addConverter(Character.class, String.class, new ObjectToStringConverter());
 
+		// Number to char
 		converterRegistry.addConverter(new NumberToCharacterConverter());
+		// 等等
 		converterRegistry.addConverterFactory(new CharacterToNumberFactory());
 
 		converterRegistry.addConverter(new StringToBooleanConverter());
