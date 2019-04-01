@@ -362,6 +362,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 							throw ex;
 						}
 					});
+					// 对 FactoryBean 的特殊处理
 					bean = getObjectForBeanInstance(sharedInstance, name, beanName, mbd);
 				}
 
@@ -381,6 +382,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 						// 默认清除bean创建状态
 						afterPrototypeCreation(beanName);
 					}
+					// 对 FactoryBean 的特殊处理
 					bean = getObjectForBeanInstance(prototypeInstance, name, beanName, mbd);
 				}
 
@@ -404,6 +406,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 								afterPrototypeCreation(beanName);
 							}
 						});
+						// 对 FactoryBean 的特殊处理
 						bean = getObjectForBeanInstance(scopedInstance, name, beanName, mbd);
 					}
 					catch (IllegalStateException ex) {
@@ -1710,12 +1713,23 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * @param mbd the merged bean definition
 	 * @return the object to expose for the bean
 	 */
-	// 对BeanFactory类型的bean做特殊处理
+	/*
+	对BeanFactory类型的bean做特殊处理，处理以下情况：
+	1. 从缓存中获取的单例实例；
+	2. 单例模式新创建实例
+	3. 原型模式新创建实例
+	4. scope获取的实例
+	 */
 	protected Object getObjectForBeanInstance(
 			Object beanInstance, String name, String beanName, @Nullable RootBeanDefinition mbd) {
 
 		// Don't let calling code try to dereference the factory if the bean isn't a factory.
 		// FactoryBean对象，注册bean时，以"&"开头，其他对象的beanName不能以"&"开头
+		/*
+		beanName以"&"开头的处理：
+		1. 如果 实例为 NullBean，直接返回
+		2. 如果实例不是 FactoryBean 类型，抛出异常（只有FactoryBean的beanName可使用"&"开头）
+		 */
 		if (BeanFactoryUtils.isFactoryDereference(name)) {
 			if (beanInstance instanceof NullBean) {
 				return beanInstance;
@@ -1728,26 +1742,42 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		// Now we have the bean instance, which may be a normal bean or a FactoryBean.
 		// If it's a FactoryBean, we use it to create a bean instance, unless the
 		// caller actually wants a reference to the factory.
-		// 对于非BeanFactory，直接返回即可
+		/*
+		直接返回的情况：
+		1. 不是 FactoryBean 的情况
+		2. 是 FactoryBean ， 但beanName 以 "&" 开头，直接返回 FactoryBean对应的bean实例即可
+		 */
 		if (!(beanInstance instanceof FactoryBean) || BeanFactoryUtils.isFactoryDereference(name)) {
 			return beanInstance;
 		}
 
 		Object object = null;
+		/*
+		mdb == null，说明bean是单例，且从缓存中获取（从doGet方法中可看出）
+		尝试调用 FactoryBeanRegistrySupport 中的缓存map  FactoryBeanObjectCache 中获取
+		 */
 		if (mbd == null) {
-			// 从 FactoryBeanRegistrySupport 的缓存map factoryBeanObjectCache 中获取
 			object = getCachedObjectForFactoryBean(beanName);
 		}
+
+		// 如果从缓存FactoryBeanObjectCache中未获取到
 		if (object == null) {
-			// Return bean instance from factory.
+			// 强制转换 beanInstance 为 FactoryBean
 			FactoryBean<?> factory = (FactoryBean<?>) beanInstance;
-			// Caches object obtained from FactoryBean if it is a singleton.
-			// containBeanDefinition 在 AbstractBeanFactory 中定义，在 DefaultListableBeanFactory 中实现， 判断是否在 beanDefinitionNames map 中
+
+			/*
+			判断是否在 beanDefinitionMap map 中
+			containBeanDefinition 在 AbstractBeanFactory 中定义，在 DefaultListableBeanFactory 中实现
+			 */
 			if (mbd == null && containsBeanDefinition(beanName)) {
 				mbd = getMergedLocalBeanDefinition(beanName);
 			}
+			// 是否是合成的BeanDefinition，如CGLIB和AOP生成的BeanDefinition
 			boolean synthetic = (mbd != null && mbd.isSynthetic());
-			// 从 FactoryBean中获取 bean
+			/*
+			 FactoryBean 创建 bean
+			 如果是单例，缓存到 【FactoryBeanObjectCache】中，保证下次直接从缓存中获取
+			 */
 			object = getObjectFromFactoryBean(factory, beanName, !synthetic);
 		}
 		return object;
