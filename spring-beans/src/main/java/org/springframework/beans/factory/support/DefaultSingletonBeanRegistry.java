@@ -191,7 +191,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					if (singletonFactory != null) {
 						// 实现ObjectFactory的类，需实现getObject方法
 						singletonObject = singletonFactory.getObject();
-						// 问题：earlySingletonObjects怎么处理到singletonObjects中？
+						// 问题：earlySingletonObjects怎么处理到singletonObjects中？循环依赖才会出现这种情况，依赖的bean创建好后，原始bean会继续走后续的流程
 						this.earlySingletonObjects.put(beanName, singletonObject);
 						this.singletonFactories.remove(beanName);
 					}
