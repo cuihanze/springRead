@@ -973,7 +973,6 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 * @param bean the raw bean instance
 	 * @return the object to expose as bean reference
 	 */
-	// 获取提前暴露的bean引用， 主要用于解决循环引用的问题
 	// 处理 SmartInstantiationAwareBeanPostProcessor 的 getEarlyBeanReference 方法
 	protected Object getEarlyBeanReference(String beanName, RootBeanDefinition mbd, Object bean) {
 		Object exposedObject = bean;
