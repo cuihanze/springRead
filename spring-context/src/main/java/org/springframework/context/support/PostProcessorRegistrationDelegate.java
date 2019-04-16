@@ -58,12 +58,13 @@ final class PostProcessorRegistrationDelegate {
 		// Invoke BeanDefinitionRegistryPostProcessors first, if any.
 		Set<String> processedBeans = new HashSet<>();
 
+		// 判断是否实现 BeanDefinitionRegistry 接口
 		if (beanFactory instanceof BeanDefinitionRegistry) {
 			BeanDefinitionRegistry registry = (BeanDefinitionRegistry) beanFactory;
 			List<BeanFactoryPostProcessor> regularPostProcessors = new ArrayList<>();
 			List<BeanDefinitionRegistryPostProcessor> registryProcessors = new ArrayList<>();
-
 			for (BeanFactoryPostProcessor postProcessor : beanFactoryPostProcessors) {
+				// 过滤掉所有内置的 beanFactoryPostProcessors 中的 BeanDefinitionRegistryPostProcessor
 				if (postProcessor instanceof BeanDefinitionRegistryPostProcessor) {
 					BeanDefinitionRegistryPostProcessor registryProcessor =
 							(BeanDefinitionRegistryPostProcessor) postProcessor;
@@ -79,9 +80,12 @@ final class PostProcessorRegistrationDelegate {
 			// uninitialized to let the bean factory post-processors apply to them!
 			// Separate between BeanDefinitionRegistryPostProcessors that implement
 			// PriorityOrdered, Ordered, and the rest.
+			// 根据BeanDefinitionRegistryPostProcessor是否实现PriorityOrdered或Ordered接口进行排序，
+			// 调用postProcessBeanDefinitionRegistry方法。优先执行PriorityOrdered接口的，其次为Ordered，最后执行其他的。
 			List<BeanDefinitionRegistryPostProcessor> currentRegistryProcessors = new ArrayList<>();
 
 			// First, invoke the BeanDefinitionRegistryPostProcessors that implement PriorityOrdered.
+			// 容器中实现了 BeanDefinitionRegistryPostProcessor 接口的 类 （BeanDefinition 注册后的扩展方法）
 			String[] postProcessorNames =
 					beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
 			for (String ppName : postProcessorNames) {
@@ -92,6 +96,7 @@ final class PostProcessorRegistrationDelegate {
 			}
 			sortPostProcessors(currentRegistryProcessors, beanFactory);
 			registryProcessors.addAll(currentRegistryProcessors);
+			// 执行 postProcessBeanDefinitionRegistry 方法
 			invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry);
 			currentRegistryProcessors.clear();
 
@@ -105,6 +110,7 @@ final class PostProcessorRegistrationDelegate {
 			}
 			sortPostProcessors(currentRegistryProcessors, beanFactory);
 			registryProcessors.addAll(currentRegistryProcessors);
+			// 执行 postProcessBeanDefinitionRegistry 方法
 			invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry);
 			currentRegistryProcessors.clear();
 
@@ -122,19 +128,29 @@ final class PostProcessorRegistrationDelegate {
 				}
 				sortPostProcessors(currentRegistryProcessors, beanFactory);
 				registryProcessors.addAll(currentRegistryProcessors);
+				// 执行 postProcessBeanDefinitionRegistry 方法
 				invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry);
 				currentRegistryProcessors.clear();
 			}
 
 			// Now, invoke the postProcessBeanFactory callback of all processors handled so far.
+			// 没有继承 BeanDefinitionRegistryPostProcessor 接口的 BeanFactoryPostProcessor 类，调用其接口方法 postProcessBeanFactory
 			invokeBeanFactoryPostProcessors(registryProcessors, beanFactory);
 			invokeBeanFactoryPostProcessors(regularPostProcessors, beanFactory);
 		}
 
 		else {
 			// Invoke factory processors registered with the context instance.
+			// 直接调用BeanFactoryPostProcessor类中的接口方法postProcessBeanFactory
 			invokeBeanFactoryPostProcessors(beanFactoryPostProcessors, beanFactory);
 		}
+
+		/*
+		查询所有BeanFactory中注册的BeanDefinition有类型为BeanFactoryPostProcessor的beanName，
+		再根据是否实现PriorityOrdered或Ordered接口进行排序，
+		调用接口方法postProcessBeanFactory，
+		先执行PriorityOrdered接口的，其次为Ordered，最后执行其他的。
+		 */
 
 		// Do not initialize FactoryBeans here: We need to leave all regular beans
 		// uninitialized to let the bean factory post-processors apply to them!
@@ -185,6 +201,13 @@ final class PostProcessorRegistrationDelegate {
 		beanFactory.clearMetadataCache();
 	}
 
+	/*
+	处理的过程类似于上面的BeanFactoryPostProcessor，
+	都是从BeanFactory中查询类型为BeanPostProcessor的beanName，
+	再根据其是否实现PriorityOrdered，Ordered接口排序，
+	然后统一调用BeanFactory的addBeanPostProcessor方法注册。
+	最后硬编码方式内置增加了一个监听器发现的BeanPostProcessor的实现ApplicationListenerDetector，用来在bean初始化之后，判断bean是否实现ApplicationListener接口，如果是，就将其注册到applicationListeners中。
+	 */
 	public static void registerBeanPostProcessors(
 			ConfigurableListableBeanFactory beanFactory, AbstractApplicationContext applicationContext) {
 
@@ -251,6 +274,8 @@ final class PostProcessorRegistrationDelegate {
 
 		// Re-register post-processor for detecting inner beans as ApplicationListeners,
 		// moving it to the end of the processor chain (for picking up proxies etc).
+		// 最后硬编码方式内置增加了一个监听器发现的BeanPostProcessor的实现ApplicationListenerDetector，
+		// 用来在bean初始化之后，判断bean是否实现ApplicationListener接口，如果是，就将其注册到applicationListeners中。
 		beanFactory.addBeanPostProcessor(new ApplicationListenerDetector(applicationContext));
 	}
 

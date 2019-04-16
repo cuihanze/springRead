@@ -138,9 +138,12 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
 			String[] configLocations, boolean refresh, @Nullable ApplicationContext parent)
 			throws BeansException {
 
+		// 一直调用到AbstractApplicationContext 初始化 resourcePatternResolver
 		super(parent);
+		// AbstractRefreshableConfigApplicationContext中实现，将配置文件路径设置到 configLocations 数组中
 		setConfigLocations(configLocations);
 		if (refresh) {
+			// 核心逻辑 -> 刷新容器，在 AbstractApplicationContext 中实现
 			refresh();
 		}
 	}

@@ -810,6 +810,12 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	}
 
 	@Override
+	/*
+	实例化 所有非懒加载的 单例类
+	在预实例化时，对FactoryBean也做了特殊的处理，
+	只有SmartFactoryBean的子类并且isEagerInit方法为true时，才会执行FactoryBean的getObject方法创建真正的对象。
+	并且创建的对象是SmartInitializingSingleton的子类时，执行接口方法afterSingletonsInstantiated。
+	 */
 	public void preInstantiateSingletons() throws BeansException {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Pre-instantiating singletons in " + this);
