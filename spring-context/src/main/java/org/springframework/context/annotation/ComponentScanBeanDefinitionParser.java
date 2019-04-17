@@ -79,49 +79,72 @@ public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser {
 
 	@Override
 	@Nullable
+	// 源码解读参见 https://my.oschina.net/u/2377110/blog/1305747
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
+		// 获取base-package属性（必填属性值）
 		String basePackage = element.getAttribute(BASE_PACKAGE_ATTRIBUTE);
+		// 对base-package的值中的${}进行解析并替换
 		basePackage = parserContext.getReaderContext().getEnvironment().resolvePlaceholders(basePackage);
+		// 解析分隔符
 		String[] basePackages = StringUtils.tokenizeToStringArray(basePackage,
 				ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);
 
 		// Actually scan for bean definitions and register them.
+		// 创建classpath扫描器
 		ClassPathBeanDefinitionScanner scanner = configureScanner(parserContext, element);
+		// 核心逻辑 -> 执行扫描操作，返回组装好的BeanDefinition集合
 		Set<BeanDefinitionHolder> beanDefinitions = scanner.doScan(basePackages);
+		// 根据配置，注册相关组件，默认包括@Configuration,@Autowired,@Required的解析器
+		/*
+		包扫描之后只是将符合条件的类解析成BeanDefinition注册到容器中，而在bean的实例化过程中，往往需要依赖注入，依赖检查之类的注解的解析操作，
+		为了避免配置的冗杂，在component-scan标签中有一个annotation-config的属性，默认为true，即加载所有常规注解的解析器。
+		这个处理就在ComponentScanBeanDefinitionParser的registerComponents方法中。
+		默认包括@Configuration,@Autowired,@Required的解析器
+		 */
 		registerComponents(parserContext.getReaderContext(), beanDefinitions, element);
 
 		return null;
 	}
 
 	protected ClassPathBeanDefinitionScanner configureScanner(ParserContext parserContext, Element element) {
+		// 是否使用默认过滤器（@Component注解）
 		boolean useDefaultFilters = true;
 		if (element.hasAttribute(USE_DEFAULT_FILTERS_ATTRIBUTE)) {
 			useDefaultFilters = Boolean.valueOf(element.getAttribute(USE_DEFAULT_FILTERS_ATTRIBUTE));
 		}
 
 		// Delegate bean definition registration to scanner class.
+		// 创建scan实例，设置默认过滤器 -> 这里关注扫码器的创建过程
 		ClassPathBeanDefinitionScanner scanner = createScanner(parserContext.getReaderContext(), useDefaultFilters);
 		scanner.setBeanDefinitionDefaults(parserContext.getDelegate().getBeanDefinitionDefaults());
 		scanner.setAutowireCandidatePatterns(parserContext.getDelegate().getAutowireCandidatePatterns());
 
+		// 解析资源正则表达式，匹配类名称
 		if (element.hasAttribute(RESOURCE_PATTERN_ATTRIBUTE)) {
 			scanner.setResourcePattern(element.getAttribute(RESOURCE_PATTERN_ATTRIBUTE));
 		}
 
 		try {
+			// 解析bean名称生成器
 			parseBeanNameGenerator(element, scanner);
-		}
-		catch (Exception ex) {
+		} catch (Exception ex) {
 			parserContext.getReaderContext().error(ex.getMessage(), parserContext.extractSource(element), ex.getCause());
 		}
 
 		try {
+			// scope-resolver(scope解析器)以及scope-proxy(代理方式，默认为no)
 			parseScope(element, scanner);
-		}
-		catch (Exception ex) {
+		} catch (Exception ex) {
 			parserContext.getReaderContext().error(ex.getMessage(), parserContext.extractSource(element), ex.getCause());
 		}
 
+		// include-filters和exclude-filters解析，用于设置额外过滤条件
+		/*
+		<context:component-scan base-package="com.lcifn.spring">
+			<context:include-filter type="annotation" expression="com.lcifn.SelfDefined"/>
+			<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+		</context:component-scan>
+		 */
 		parseTypeFilters(element, scanner, parserContext);
 
 		return scanner;
@@ -148,6 +171,7 @@ public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser {
 			annotationConfig = Boolean.valueOf(element.getAttribute(ANNOTATION_CONFIG_ATTRIBUTE));
 		}
 		if (annotationConfig) {
+			// 核心逻辑 -> 默认注册包括@Configuration,@Autowired,@Required的解析器
 			Set<BeanDefinitionHolder> processorDefinitions =
 					AnnotationConfigUtils.registerAnnotationConfigProcessors(readerContext.getRegistry(), source);
 			for (BeanDefinitionHolder processorDefinition : processorDefinitions) {
@@ -206,10 +230,12 @@ public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser {
 			if (node.getNodeType() == Node.ELEMENT_NODE) {
 				String localName = parserContext.getDelegate().getLocalName(node);
 				try {
+					// include-filter
 					if (INCLUDE_FILTER_ELEMENT.equals(localName)) {
 						TypeFilter typeFilter = createTypeFilter((Element) node, classLoader, parserContext);
 						scanner.addIncludeFilter(typeFilter);
 					}
+					// exclude-filter
 					else if (EXCLUDE_FILTER_ELEMENT.equals(localName)) {
 						TypeFilter typeFilter = createTypeFilter((Element) node, classLoader, parserContext);
 						scanner.addExcludeFilter(typeFilter);
