@@ -536,14 +536,14 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				postProcessBeanFactory(beanFactory);
 
 				// Invoke factory processors registered as beans in the context.
-				/* 实例化，并执行所有的BeanFactoryPostProcessor
-				1. BeanDefinition注册前的扩展
+				/* 实例化，并执行所有的 BeanFactoryPostProcessor
+				1. BeanDefinition 注册前的扩展
 				2. BeanFactory 实例化后的扩展
 				 */
 				invokeBeanFactoryPostProcessors(beanFactory);
 
 				// Register bean processors that intercept bean creation.
-				// 实例化，并注册所有的BeanPostProcessor
+				// 实例化，并注册所有的s
 				registerBeanPostProcessors(beanFactory);
 
 				// Initialize message source for this context.
@@ -675,7 +675,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		beanFactory.addPropertyEditorRegistrar(new ResourceEditorRegistrar(this, getEnvironment()));
 
 		// Configure the bean factory with context callbacks.
-		// 设置框架级Aware接口实现，由容器自动注入对应属性
+		// 设置框架级Aware接口实现，由容器自动注入对应属性，对@AutoWired的支持
 		beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
 		beanFactory.ignoreDependencyInterface(EnvironmentAware.class);
 		beanFactory.ignoreDependencyInterface(EmbeddedValueResolverAware.class);
@@ -898,13 +898,15 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		}
 
 		// Stop using the temporary ClassLoader for type matching.
+		// 停止使用临时类加载器
 		beanFactory.setTempClassLoader(null);
 
 		// Allow for caching all bean definition metadata, not expecting further changes.
+		// 冻结bean definition元数据配置
 		beanFactory.freezeConfiguration();
 
 		// Instantiate all remaining (non-lazy-init) singletons.
-		// 预实例化， 实例化 所有非懒加载的 单例类
+		// 核心逻辑 -> 预实例化， 实例化 所有非懒加载的 单例类
 		beanFactory.preInstantiateSingletons();
 	}
 

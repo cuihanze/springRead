@@ -63,24 +63,28 @@ public interface ApplicationContext extends EnvironmentCapable, ListableBeanFact
 	 * @return the unique id of the context, or {@code null} if none
 	 */
 	@Nullable
+	// 唯一id
 	String getId();
 
 	/**
 	 * Return a name for the deployed application that this context belongs to.
 	 * @return a name for the deployed application, or the empty String by default
 	 */
+	// 所属应用名称
 	String getApplicationName();
 
 	/**
 	 * Return a friendly name for this context.
 	 * @return a display name for this context (never {@code null})
 	 */
+	// 显示名称
 	String getDisplayName();
 
 	/**
 	 * Return the timestamp when this context was first loaded.
 	 * @return the timestamp (ms) when this context was first loaded
 	 */
+	// 启动时间
 	long getStartupDate();
 
 	/**
@@ -88,6 +92,7 @@ public interface ApplicationContext extends EnvironmentCapable, ListableBeanFact
 	 * and this is the root of the context hierarchy.
 	 * @return the parent context, or {@code null} if there is no parent
 	 */
+	// 父类容器
 	@Nullable
 	ApplicationContext getParent();
 
@@ -112,6 +117,7 @@ public interface ApplicationContext extends EnvironmentCapable, ListableBeanFact
 	 * @see ConfigurableApplicationContext#refresh()
 	 * @see ConfigurableApplicationContext#getBeanFactory()
 	 */
+	// 内部BeanFactory
 	AutowireCapableBeanFactory getAutowireCapableBeanFactory() throws IllegalStateException;
 
 }
