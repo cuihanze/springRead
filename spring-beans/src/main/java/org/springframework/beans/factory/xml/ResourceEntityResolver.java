@@ -72,9 +72,11 @@ public class ResourceEntityResolver extends DelegatingEntityResolver {
 
 	@Override
 	@Nullable
+	// 解析Document时的回调函数
 	public InputSource resolveEntity(@Nullable String publicId, @Nullable String systemId)
 			throws SAXException, IOException {
 
+		// 调用父类
 		InputSource source = super.resolveEntity(publicId, systemId);
 
 		if (source == null && systemId != null) {

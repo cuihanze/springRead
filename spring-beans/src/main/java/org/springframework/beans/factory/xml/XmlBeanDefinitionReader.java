@@ -257,11 +257,15 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * Return the EntityResolver to use, building a default resolver
 	 * if none specified.
 	 */
+	// 这里设置解析Document的回调函数，在DefaultDocumentLoader.loadDocument中的 builder.parse 执行过程中，
+	// 会走到JDK的EntityResolverWrapper的InputSource inputSource = fEntityResolver.resolveEntity(pubId, sysId);
+	// 此时回调这里设置的EntityResolver实现类的resolveEntity方法
 	protected EntityResolver getEntityResolver() {
 		if (this.entityResolver == null) {
 			// Determine default EntityResolver to use.
 			ResourceLoader resourceLoader = getResourceLoader();
 			if (resourceLoader != null) {
+				// ClassPathApplicationContext 中，resourceLoader不为空，故返回ResourceEntityResolver实例
 				this.entityResolver = new ResourceEntityResolver(resourceLoader);
 			}
 			else {

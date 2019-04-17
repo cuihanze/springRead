@@ -46,6 +46,7 @@ import org.springframework.lang.Nullable;
  * @see DefaultBeanDefinitionDocumentReader
  * @see NamespaceHandlerResolver
  */
+// 自定义XML标签处理器接口
 public interface NamespaceHandler {
 
 	/**
@@ -53,6 +54,7 @@ public interface NamespaceHandler {
 	 * construction but before any custom elements are parsed.
 	 * @see NamespaceHandlerSupport#registerBeanDefinitionParser(String, BeanDefinitionParser)
 	 */
+	// 初始化操作，一般都是注册子标签的解析器BeanDefinitionParser
 	void init();
 
 	/**
@@ -69,6 +71,7 @@ public interface NamespaceHandler {
 	 * @param parserContext the object encapsulating the current state of the parsing process
 	 * @return the primary {@code BeanDefinition} (can be {@code null} as explained above)
 	 */
+	// 解析标签的具体功能
 	@Nullable
 	BeanDefinition parse(Element element, ParserContext parserContext);
 

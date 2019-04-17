@@ -106,6 +106,7 @@ public class PluggableSchemaResolver implements EntityResolver {
 
 	@Override
 	@Nullable
+	// 回调函数
 	public InputSource resolveEntity(@Nullable String publicId, @Nullable String systemId) throws IOException {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Trying to resolve XML entity with public id [" + publicId +
@@ -113,6 +114,7 @@ public class PluggableSchemaResolver implements EntityResolver {
 		}
 
 		if (systemId != null) {
+			// 核心逻辑 -> 查找META-INF下spring.schemas文件中定义的对应关系
 			String resourceLocation = getSchemaMappings().get(systemId);
 			if (resourceLocation == null && systemId.startsWith("https:")) {
 				// Retrieve canonical http schema mapping even for https declaration
@@ -145,6 +147,7 @@ public class PluggableSchemaResolver implements EntityResolver {
 	 * Load the specified schema mappings lazily.
 	 */
 	private Map<String, String> getSchemaMappings() {
+		// schemaMappings在构造函数中被设置为DEFAULT_SCHEMA_MAPPINGS_LOCATION， DEFAULT_SCHEMA_MAPPINGS_LOCATION = META-INF/spring.schemas
 		Map<String, String> schemaMappings = this.schemaMappings;
 		if (schemaMappings == null) {
 			synchronized (this) {

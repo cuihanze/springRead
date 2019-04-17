@@ -74,7 +74,9 @@ public class DefaultDocumentLoader implements DocumentLoader {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Using JAXP provider [" + factory.getClass().getName() + "]");
 		}
+		// 创建DocumentBuilder，此处设置了EntityResolver的实现类，此处为ResourceEntityResolver
 		DocumentBuilder builder = createDocumentBuilder(factory, entityResolver, errorHandler);
+		// 执行JDK的解析方法，debug可看到，在JDK的EntityResolverWrapper.resolveEntity中，会回调EntityResolver的resolveEntity方法，即 ResourceEntityResolver中定义的resolveEntity方法
 		return builder.parse(inputSource);
 	}
 

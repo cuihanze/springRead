@@ -69,8 +69,11 @@ public abstract class NamespaceHandlerSupport implements NamespaceHandler {
 	 */
 	@Override
 	@Nullable
+	// 调用回调函数，将parse工作交给对应的已通过registerBeanDefinitionParser方法注册后的BeanDefinitionParser实现类处理
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
+		// 从parsers中获取已注册的 解析器
 		BeanDefinitionParser parser = findParserForElement(element, parserContext);
+		// 执行回调函数parse，执行解析的工作
 		return (parser != null ? parser.parse(element, parserContext) : null);
 	}
 
@@ -79,6 +82,7 @@ public abstract class NamespaceHandlerSupport implements NamespaceHandler {
 	 * the local name of the supplied {@link Element}.
 	 */
 	@Nullable
+	// 自定义解析器时，通过registerBeanDefinitionParser，将解析器注册到 parsers中，此处从parsers中获得自定义的解析器
 	private BeanDefinitionParser findParserForElement(Element element, ParserContext parserContext) {
 		String localName = parserContext.getDelegate().getLocalName(element);
 		BeanDefinitionParser parser = this.parsers.get(localName);
@@ -134,6 +138,7 @@ public abstract class NamespaceHandlerSupport implements NamespaceHandler {
 	 * handle the specified element. The element name is the local (non-namespace qualified)
 	 * name.
 	 */
+	// 注册解析器到parsers
 	protected final void registerBeanDefinitionParser(String elementName, BeanDefinitionParser parser) {
 		this.parsers.put(elementName, parser);
 	}
