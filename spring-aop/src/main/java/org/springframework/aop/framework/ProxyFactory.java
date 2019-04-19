@@ -94,6 +94,7 @@ public class ProxyFactory extends ProxyCreatorSupport {
 	 * @return the proxy object
 	 */
 	public Object getProxy() {
+		// 这里最后调用 JDKDynamicAOPProxy 或 ObjenesisCglibAopProxy 的 getProxy，使用了 工厂方法模式 ， getProxy的方法实现使用了 策略模式
 		return createAopProxy().getProxy();
 	}
 
