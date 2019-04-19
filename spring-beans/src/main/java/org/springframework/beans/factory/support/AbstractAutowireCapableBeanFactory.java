@@ -1829,7 +1829,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			}, getAccessControlContext());
 		}
 		else {
-			// 处理实现 Aware 接口的 Bean
+			// 处理实现 Aware 接口的 Bean，
 			invokeAwareMethods(beanName, bean);
 		}
 

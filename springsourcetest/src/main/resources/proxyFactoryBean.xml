@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	<!-- 原始对象 -->
+	<bean id="chromeBrowser" class="com.cui.ProxyFactoryTest.ChromeBrowser"/>
+	<!-- 环绕增强对象 -->
+	<bean id="browserAroundAdvice" class="com.cui.ProxyFactoryTest.BrowserAroundAdvice"/>
+
+	<bean id="browserProxy" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<!-- 接口 -->
+		<property name="interfaces" value="com.cui.ProxyFactoryTest.Browser"/>
+		<!-- 要代理的对象 -->
+		<property name="target" ref="chromeBrowser"/>
+		<!-- 拦截器组 -->
+		<property name="interceptorNames">
+			<list>
+				<value>browserAroundAdvice</value>
+			</list>
+		</property>
+	</bean>
+</beans>
