@@ -317,6 +317,8 @@ public abstract class AopUtils {
 				// already processed
 				continue;
 			}
+			// 匹配Advisor是否适用当前bean
+			// canApply方法执行实际的匹配操作，细节部分主要是对切入点Pointcut和bean的匹配
 			if (canApply(candidate, clazz, hasIntroductions)) {
 				eligibleAdvisors.add(candidate);
 			}

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	<!-- 原始对象 -->
+	<bean id="chromeBrowser" class="com.cui.ProxyFactoryTest.ChromeBrowser"/>
+	<!-- 环绕增强对象 -->
+	<bean id="browserAroundAdvice" class="com.cui.ProxyFactoryTest.BrowserAroundAdvice"/>
+	<!-- 切面 -->
+	<bean id="regexpAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+		<property name="advice" ref="browserAroundAdvice"></property>
+		<!-- 切入点正则表达式 -->
+		<property name="pattern" value="com.cui.ProxyFactoryTest.*"/>
+	</bean>
+
+	<!-- 自动扫描切面代理类 -->
+	<bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator">
+		<!--放开注释会报错， org.springframework.beans.factory.BeanCreationException:
+		 Error creating bean with name 'chromeBrowser' defined in class path resource [defaultAdvisorAutoProxyCreator.xml]:
+		 Initialization of bean failed; nested exception is java.lang.NoClassDefFoundError: org/springframework/cglib/core/CodeGenerationException -->
+		<!--<property name="optimize" value="true"/>-->
+	</bean>
+</beans>
